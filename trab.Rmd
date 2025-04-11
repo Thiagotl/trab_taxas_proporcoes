@@ -1,8 +1,21 @@
 ---
-title: "Trabalho Taxas e Proporções"
-author: "Thiago Tavares Lopes"
-date: "2025-04-11"
-output: pdf_document
+title: "Taxas e Proporções"
+subtitle: ""
+author: Thiago Tavares Lopes
+date: "`r format(Sys.time(), '%d %B %Y')`"
+header-includes:
+   - \usepackage[brazil]{babel}
+   - \usepackage{bm}
+   - \usepackage{float}
+   - \usepackage{multirow}
+geometry: left=2.5cm, right=2.5cm, top=2cm, bottom=2cm
+toc: true #sumário
+output:
+  bookdown::pdf_document2:
+editor_options:
+  chunk_output_type: console
+  markdown: 
+    wrap: sentence
 ---
 
 # Introdução 
