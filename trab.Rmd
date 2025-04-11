@@ -5,3 +5,6 @@ date: "2025-04-11"
 output: pdf_document
 ---
 
+# Introdução 
+
+# Distribuição Gompertz Unitária
