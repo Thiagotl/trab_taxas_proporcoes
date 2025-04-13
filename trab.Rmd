@@ -55,7 +55,7 @@ A distribuição Gompertz Unitária (UGo), foi proposta em XXX por XXX, como uma
 Seja \textbf{X}, uma variável aleatória com suporte $X\in(0,1)$. Sua Função de densidade de probabilidade é dada por:
 
 \begin{equation}
- f(x|\mu;\sigma) = \mu \sigma x^{-(\sigma+1)} exp{[-\mu(x^(-\sigma)-1)]}
+ f(x|\mu;\sigma) = \mu \sigma x^{-(\sigma+1)} \exp{[-\mu(x^{-\sigma}-1)]}
 \end{equation}
 
 
@@ -69,7 +69,11 @@ dUGo<-function(x, mu=.5, sigma=1.2){
   return(fx)
 
 }
+
 ```
+
+
+
 
 Seja, Fx seja uma função de densidade, a mesma deve seguir as seguintes propriedades:
 
@@ -80,4 +84,51 @@ Para testar
 integrate(dUGo,0,1) 
 
 ```
+
+
+Função Acumulada
+
+\begin{equation}
+ f(x|\mu;\sigma) =  exp{[-\mu(x^{-\sigma}-1)]}
+\end{equation}
+
+```{r}
+
+pUGo<-function(q, mu=.5, sigma=1.2){
+  
+  cdf<-exp(-mu*(q^(-sigma)-1))
+  
+  return(cdf)
+
+}
+```
+
+```{r}
+pUGo(.25)
+integrate(dUGo, 0, .25)
+```
+
+
+Função Quantílica 
+
+
+\begin{equation}
+ Q(p|\mu;\sigma) =  \exp{[-\frac{1}{\sigma} \log{(\mu-\log{p)}}-\log{\mu}]}
+\end{equation}
+
+```{r}
+
+qUGo<-function(u, mu=.5, sigma=1.2)
+{
+   q<-((-log(u)/mu)+1)^(-1/sigma)
+  
+  return(q)
+}
+
+u=pUGo(.82)
+qUGo(u)
+```
+ 
+
+
 
