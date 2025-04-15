@@ -41,18 +41,12 @@ editor_options:
 
 ```
 
-
-# Introdução 
-
-
-
-
 # Distribuição Gompertz Unitária
 
 
-A distribuição Gompertz Unitária (UGo), foi proposta em XXX por XXX, como uma tranformação da distribuição Gompertz, proposta pelo XXX em XXX como um forma de modelar XXXX. \par
+A distribuição Gompertz Unitária (UGo), foi proposta em 2019  por Josmar Mazucheli, através como uma transformação do tipo $X=\exp(-Y)$ em que Y é da distribuição Gompertz. Já a distribuição Gompertz proposta pelo matemático e atuário Benjamin Gompertz em 1865. \par
 
-Seja \textbf{X}, uma variável aleatória com suporte $X\in(0,1)$. Sua Função de densidade de probabilidade é dada por:
+Seja \textbf{X}, uma variável aleatória com suporte duplamente limitado $X\in(0,1)$. Sua Função de densidade de probabilidade é dada por:
 
 \begin{equation}
  f(x|\mu;\sigma) = \mu \sigma x^{-(\sigma+1)} \exp{[-\mu(x^{-\sigma}-1)]}
@@ -130,5 +124,59 @@ qUGo(u)
 ```
  
 
+Log-Verossimilhança
 
+\begin{equation}
+\ell(\mu;\sigma|X)=\sum_{i=1}^{n}\left [\log(\mu)+\log(\sigma)-(\sigma +1)\log(x)-\mu (x^{-\sigma}-1)  \right ]
+\end{equation}
+
+```{r}
+log_lik <- function(theta, x) {
+  
+  n <- length(x)
+  mu<-theta[1]
+  sigma<-theta[2]
+  
+  term1 <- n * log(mu)
+  term2 <- n * log(sigma)
+  term3 <- -(sigma + 1) * sum(log(x))
+  term4 <- -mu * sum(x^(-sigma) - 1)
+  
+  ll <- term1 + term2 + term3 + term4
+  return(ll)
+}
+```
+
+
+```{r}
+set.seed(123)
+x_sample <- runif(100, min = 0.01, max = 0.99)
+
+theta<-c(2,3)
+
+
+log_lik(theta, x_sample)
+```
+
+
+```{r}
+# Gerando uma amostra no intervalo (0,1)
+set.seed(123)
+x_sample <- runif(100, min = 0.01, max = 0.99)
+
+# Chute inicial para os parâmetros
+start_params <- c(alpha = 1, beta = 1)
+
+# Otimização via MLE
+fit <- optim(
+  par = start_params,
+  fn = neg_log_likelihood_unit_gompertz,
+  x = x_sample,
+  method = "L-BFGS-B",
+  lower = c(1e-6, 1e-6)  # limites inferiores para alpha e beta
+)
+
+# Resultados
+fit$par  # estimativas de alpha e beta
+```
 
