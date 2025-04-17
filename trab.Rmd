@@ -37,8 +37,11 @@ editor_options:
 ```{r, include=FALSE}
 
 # bibliotecas
-
-
+library(tidyverse)
+library(latex2exp)
+library(ggplot2)
+library(tibble)
+library(purrr)
 ```
 
 # Distribuição Gompertz Unitária
@@ -105,7 +108,6 @@ integrate(dUGo, 0, .25)
 
 Função Quantílica 
 
-
 \begin{equation}
  Q(p|\mu;\sigma) =  \exp{[-\frac{1}{\sigma} \log{(\mu-\log{p)}}-\log{\mu}]}
 \end{equation}
@@ -122,6 +124,27 @@ qUGo<-function(u, mu=.5, sigma=1.2)
 u=pUGo(.82)
 qUGo(u)
 ```
+ 
+Geração de números aleatórios pelo menos da inversão.
+
+```{r}
+set.seed(123)
+rUGO <- function(n, mu=.5, sigma=1.2) {
+  u <- runif(n)
+  y <- ((-log(u)/mu)+1)^(-1/sigma)
+  return(y)
+}
+
+rUGO(100)
+
+# set.seed(123)
+# x_sample <- runif(100, min = 0.01, max = 0.99)
+# 
+# theta<-c(2,3)
+# 
+# log_lik(theta, x_sample)
+```
+
  
 
 Log-Verossimilhança
@@ -148,35 +171,86 @@ log_lik <- function(theta, x) {
 ```
 
 
-```{r}
+
+```{r, warning = FALSE }
+
 set.seed(123)
-x_sample <- runif(100, min = 0.01, max = 0.99)
 
-theta<-c(2,3)
+x<-rUGO(100)
+
+rUGO <- function(n, mu=.5, sigma=1.2) {
+  u <- runif(n)
+  y <- ((-log(u)/mu)+1)^(-1/sigma)
+  return(y)
+}
+
+parametros_inicial <- c(0.5, 1.6)  # Valores iniciais para mu e beta
+  
+optim_result <- optim(parametros_inicial, log_lik, x=x, hessian = T,
+                        method="BFGS", 
+                        control = list(fnscale=-1))
 
 
-log_lik(theta, x_sample)
+print(optim_result$par)
+  
+```
+
+\newpage
+Gráficos de Densidade
+
+```{r include=FALSE}
+mu<-c(0.1,0.2,0.5,1.5,3.5,5.5)
+sigma<-c(0.1,0.5,0.8,1.5,3.5,5.5)
+
+x<-seq(.0001,.9999,length.out = 1000)
 ```
 
 
-```{r}
-# Gerando uma amostra no intervalo (0,1)
-set.seed(123)
-x_sample <- runif(100, min = 0.01, max = 0.99)
+```{r, include=FALSE}
+graphic_density<-function(par,x,data,legend_g=r'($\alpha = %f$)',lim_x,y_max,legend_pos=c(0.9, 0.8),base_size=12){
+  #http://sape.inf.usi.ch/quick-reference/ggplot2/linetype
+  #myDot<-c("blank", "solid", "dashed", "dotted", "dotdash", "longdash", "twodash", "1F", "F1", "4C88C488", "12345678")
+  myDot<-c("solid", "longdash","twodash","dashed", "dotdash", "dotted")
+  my_color<-rep("black",6)
+  #my_color<-viridis::cividis(15)
+  last_plot<-ggplot2::ggplot(data,aes(x = x, y = v, colour =as.factor({{par}}), linetype=as.factor({{par}})))+
+    xlim(lim_x)+ylim(0,y_max)+geom_line(size = 0.8)+
+    scale_linetype_manual(name= "", values = myDot,labels=lapply(sprintf(legend_g, {{par}}), TeX))+
+    scale_color_manual(name="",values=my_color,labels=lapply(sprintf(legend_g, {{par}}), TeX))+
+    labs(x="y",y = "Probability Density Function",title="",linetype = "")+theme_bw(base_size = base_size)+
+    guides(linetype = guide_legend(ncol = 1)) +
+    theme(legend.position = legend_pos,panel.grid.major = element_blank(), 
+          panel.grid.minor = element_blank(),legend.background = element_blank(),
+          legend.key = element_blank())
+  last_plot
+}
 
-# Chute inicial para os parâmetros
-start_params <- c(alpha = 1, beta = 1)
+```
 
-# Otimização via MLE
-fit <- optim(
-  par = start_params,
-  fn = neg_log_likelihood_unit_gompertz,
-  x = x_sample,
-  method = "L-BFGS-B",
-  lower = c(1e-6, 1e-6)  # limites inferiores para alpha e beta
-)
 
-# Resultados
-fit$par  # estimativas de alpha e beta
+
+
+
+
+```{r, echo=FALSE, warning = FALSE}
+
+# mu ---------------------------------------------------------------------- #
+
+dataa<-purrr::map_df(mu, ~ tibble::tibble(v=dUGo(x,.,sigma=1.2), x=x, mu=.))
+last_plota<-graphic_density(par = mu,x = x,data = dataa,legend_g = r'($\mu = %f$)',
+                            lim_x = c(0,1),y_max = 4.8,legend_pos = c(0.45, 0.77),base_size = 13)
+last_plota
+#ggsave("pdf_UMW1_vmu.pdf",plot = last_plota, width = 11.5, height = 9, units = "cm")
+
+```
+
+```{r, echo=FALSE, warning = FALSE}
+# sigma ---------------------------------------------------------------------- #
+
+datab<-purrr::map_df(sigma, ~ tibble::tibble(v=dUGo(x,.,mu=0.4), x=x, sigma=.))
+last_plotb<-graphic_density(par = sigma,x = x,data = datab,legend_g = r'($\sigma = %f$)',
+                            lim_x = c(0,1),y_max = 6.5,legend_pos = c(0.7, 0.77),base_size = 13)
+last_plotb
+#ggsave("pdf_UMW1_vsigma.pdf",plot = last_plotb, width = 11.5, height = 9, units = "cm")
 ```
 
