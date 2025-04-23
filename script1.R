@@ -41,7 +41,7 @@ qUGo(u)
 # Método da geração de número aleatórios 
 
 
-rUGO <- function(n, mu=.5, sigma=1.2, tau=.5) {
+rUGO <- function(n, mu=.5, sigma=1.2) {
   u <- runif(n)
   y<-((-log(u)/mu)+1)^(-1/sigma)
   return(y)
