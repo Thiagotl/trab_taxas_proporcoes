@@ -131,7 +131,7 @@ for (i in 1:100) {
   mu_result[i]<-logit_link$linkinv(fit1$mu.coefficients)
   sigma_result[i]<-log_link$linkinv(fit1$sigma.coefficients)
 }
-#
+
 result1<- matrix(c(mu_true, mean(mu_result),
             sigma_true, mean(sigma_result)),2,2)
 colnames(result1)<-c("mu","sigma")
