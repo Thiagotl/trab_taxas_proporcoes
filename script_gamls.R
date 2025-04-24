@@ -143,45 +143,45 @@ rUGo <- function(n, mu, sigma) {
 
 # SIMULAÇÃO E AJUSTE DO MODELO SEM REGRESSORES
 
-# set.seed(10)
-# n <- 150
-# mu_true <- 0.1
-# sigma_true <- 0.5
-# mu_result <- sigma_result <- numeric(100)
-# 
-# logit_link <- make.link("logit")
-# log_link <- make.link("log")
-# 
-# for (i in 1:100) {
-#   y <- rUGo(n, mu_true, sigma_true)
-#   
-#   fit <- tryCatch(
-#     gamlss(y ~ 1, family = UGo(), method = RS(), control = gamlss.control(n.cyc = 100), trace = FALSE),
-#     error = function(e) NULL
-#   )
-#   
-#   if (!is.null(fit) &&
-#       !is.null(fit$mu.coefficients) && !is.null(fit$sigma.coefficients) &&
-#       length(fit$mu.coefficients) == 1 && length(fit$sigma.coefficients) == 1) {
-#     
-#     mu_result[i] <- logit_link$linkinv(fit$mu.coefficients)
-#     sigma_result[i] <- log_link$linkinv(fit$sigma.coefficients)
-#   } else {
-#     mu_result[i] <- NA
-#     sigma_result[i] <- NA
-#   }
-# }
-# 
-# 
-# # RESULTADOS
-# 
-# result <- matrix(c(mu_true, mean(mu_result, na.rm = TRUE),
-#                    sigma_true, mean(sigma_result, na.rm = TRUE)), 2, 2)
-# 
-# colnames(result) <- c("mu", "sigma")
-# rownames(result) <- c("true value", "mean")
-# 
-# print(round(result, 3))
+set.seed(10)
+n <- 150
+mu_true <- 0.1
+sigma_true <- 0.5
+mu_result <- sigma_result <- numeric(100)
+
+logit_link <- make.link("logit")
+log_link <- make.link("log")
+
+for (i in 1:100) {
+  y <- rUGo(n, mu_true, sigma_true)
+
+  fit <- tryCatch(
+    gamlss(y ~ 1, family = UGo(), method = RS(), control = gamlss.control(n.cyc = 100), trace = FALSE),
+    error = function(e) NULL
+  )
+
+  if (!is.null(fit) &&
+      !is.null(fit$mu.coefficients) && !is.null(fit$sigma.coefficients) &&
+      length(fit$mu.coefficients) == 1 && length(fit$sigma.coefficients) == 1) {
+
+    mu_result[i] <- logit_link$linkinv(fit$mu.coefficients)
+    sigma_result[i] <- log_link$linkinv(fit$sigma.coefficients)
+  } else {
+    mu_result[i] <- NA
+    sigma_result[i] <- NA
+  }
+}
+
+
+# RESULTADOS
+
+result <- matrix(c(mu_true, mean(mu_result, na.rm = TRUE),
+                   sigma_true, mean(sigma_result, na.rm = TRUE)), 2, 2)
+
+colnames(result) <- c("mu", "sigma")
+rownames(result) <- c("true value", "mean")
+
+print(round(result, 3))
 
 
 #### COM REGRESSORES---- 
